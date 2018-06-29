@@ -1,1 +1,14 @@
-/build/*
+# Exclude all files/directories except the ones I want
+/*
+
+# .gitignore
+!.gitignore
+
+# Readme
+!README.md
+
+# Source code
+!Get_phi_ArmDynamics.cpp
+
+# CMake
+!CMakeLists.txt

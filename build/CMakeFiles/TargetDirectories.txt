@@ -1,3 +1,0 @@
-/home/krang/dart/20-ParametricIdentification-7DOF/build/CMakeFiles/edit_cache.dir
-/home/krang/dart/20-ParametricIdentification-7DOF/build/CMakeFiles/rebuild_cache.dir
-/home/krang/dart/20-ParametricIdentification-7DOF/build/CMakeFiles/Get_phi_ArmDynamics.dir
