@@ -142,22 +142,14 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
 
     }
 
-    // TODO: Need to create an array of pertRobots in a fast time
     // Create array of robots out of phi loop for fast times
     // then change appropriate values (betaParams(i)) for each robot when
     // going through all the robots
 
-    SkeletonPtr pertRobotArray[sizeof(SkeletonPtr) * numPertRobots];
+    SkeletonPtr pertRobotArray[numPertRobots];
 
     for (int i = 0; i < numPertRobots; i++) {
-
-        // TODO: Segfaulting right here
-        // Trying to create an array of idealRobots by calling parseSkeleton
-        // only once since it is time expenseive
-        //memcpy(pertRobotArray[i], idealRobot, sizeof(SkeletonPtr));
-
-        pertRobotArray[i] = loader.parseSkeleton(fullRobotPath);
-
+        pertRobotArray[i] = idealRobot->clone();
     }
 
     for (int pertRobotNum = 0; pertRobotNum < numPertRobots; pertRobotNum++) {
