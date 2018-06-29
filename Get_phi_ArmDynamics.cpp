@@ -39,9 +39,6 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd inputQ, Eigen::MatrixXd inputQdot, 
 Eigen::MatrixXd readInputFileAsMatrix(string inputFilename);
 Eigen::MatrixXd readInputFileAsMatrix(string inputFilename, int stopCount);
 
-// TODO: Need to merge
-int genPhiMatrixAsFile();
-
 // Main Method
 int main() {
     // INPUT on below line (perturbation value for finding phi)
