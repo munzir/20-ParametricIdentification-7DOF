@@ -1,6 +1,7 @@
 # 20: Parametric Identification 7DOF
 TODO: Project Description
-Generate the phi matrix
+
+# WARNING PROJECT NOT TESTED
 
 ## Dependencies
 - DART (at least version 6) [DART Homepage](https://dartsim.github.io)
