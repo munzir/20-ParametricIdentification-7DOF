@@ -1,8 +1,6 @@
 # 20: Parametric Identification 7DOF
 TODO: Project Description
 
-# WARNING PROJECT NOT TESTED
-
 ## Dependencies
 - DART (at least version 6) [DART Homepage](https://dartsim.github.io)
 
