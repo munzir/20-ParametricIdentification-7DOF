@@ -19,6 +19,7 @@
 #include <dart/utils/urdf/urdf.hpp>
 #include <iostream>
 #include <fstream>
+#include <math.h>
 
 // Namespaces
 using namespace std;
@@ -46,18 +47,18 @@ int main() {
     double perturbedValue = std::pow(10, -8);
 
     // INPUT on below line (absolute robot path)
-    string fullRobotPath = "/home/krang/dart/09-URDF/7DOFArm/singlearm.urdf";
+    string fullRobotPath = "/home/Zubair/Documents/WholeBodyControlAttempt1/09-URDF/7DOFArm/singlearm.urdf";
 
     // INPUT on below line (input data points filenames)
-    string inputQFilename = "/home/krang/Downloads/trainingData/dataQ.txt";
-    string inputQdotFilename = "/home/krang/Downloads/trainingData/dataQdot.txt";
-    string inputQdotdotFilename = "/home/krang/Downloads/trainingData/dataQdotdot.txt";
-    string inputTorqueFilename = "/home/krang/Downloads/trainingData/dataTorque.txt";
-    string inputMassMatrixFilename = "/home/krang/Downloads/trainingData/dataM.txt";
-    string inputCgFilename = "/home/krang/Downloads/trainingData/dataCg.txt";
+    string inputQFilename = "/home/Zubair/Downloads/test4/dataQ1.txt";
+    string inputQdotFilename = "/home/Zubair/Downloads/test4/dataDotQ1.txt";
+    string inputQdotdotFilename = "/home/Zubair/Downloads/test4/dataDDotQ1.txt";
+    string inputTorqueFilename = "/home/Zubair/Downloads/test4/dataCur1.txt";
+    //string inputMassMatrixFilename = "/home/Downloads/train4/dataM.txt";
+    //string inputCgFilename = "/home/Downloads/train4/dataCg.txt";
 
     // INPUT on below line (data point limit)
-    int stopCount = 10;
+    int stopCount = 450;
 
     try {
         cout << "Reading input q ...\n";
@@ -98,12 +99,49 @@ int main() {
 Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqdot, Eigen::MatrixXd allInitqdotdot, Eigen::MatrixXd allInitTorque, string fullRobotPath, double perturbedValue) {
     
 
+
+
     int numInputPoses = allInitq.rows();
     int numParams = allInitq.cols();
 
+    cout<<endl<<numParams<<endl;
 
-    cout<<endl<<numInputPoses<<endl;
+    Eigen::VectorXd km(7);
 
+
+    km(0)=31.4e-3;
+    km(1)=31.4e-3;
+    km(2)=38e-3;
+    km(3)=38e-3;
+    km(4)=16e-3;
+    km(5)=16e-3;
+    km(6)=16e-3;
+
+    Eigen::VectorXd G_R(7);
+
+    G_R(0)=596;
+    G_R(1)=596;
+    G_R(2)=625;
+    G_R(3)=625;
+    G_R(4)=552;
+    G_R(5)=552;
+    G_R(6)=552;
+
+
+    //cout<<endl<<G_R<<endl;
+ 
+    ofstream myfile6;
+ 
+    myfile6.open ("dataTorque_sec.txt");
+
+    for(int b=0; b<numParams; b++) {
+
+    	allInitTorque.col(b)= allInitTorque.col(b)*km(b)*G_R(b);
+     }
+
+     myfile6<<allInitTorque;
+
+     myfile6.close();
 
 
 /*
@@ -440,7 +478,7 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
     cout << "Creating ideal beta vector ...\n";
     dart::utils::DartLoader loader;
     // INPUT on below line (absolute path of the Krang URDF file)
-    dart::dynamics::SkeletonPtr idealRobot = loader.parseSkeleton("/home/krang/dart/09-URDF/7DOFArm/singlearm.urdf");
+    dart::dynamics::SkeletonPtr idealRobot = loader.parseSkeleton("/home/Zubair/Documents/WholeBodyControlAttempt1/09-URDF/7DOFArm/singlearm.urdf");
     idealRobot->setGravity(Eigen::Vector3d (0.0, -9.81, 0.0));
 
     // Create ideal beta
@@ -530,7 +568,7 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
 
     dart::dynamics::SkeletonPtr pertRobotArray[numPertRobots];
     for(int i=0; i<numPertRobots; i++) {
-        pertRobotArray[i] = loader.parseSkeleton("/home/krang/dart/09-URDF/7DOFArm/singlearm.urdf");
+        pertRobotArray[i] = loader.parseSkeleton("/home/Zubair/Documents/WholeBodyControlAttempt1/09-URDF/7DOFArm/singlearm.urdf");
         pertRobotArray[i]->setGravity(Eigen::Vector3d (0.0, -9.81, 0.0));
     }
 
@@ -806,6 +844,11 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
     phifile.open ("phi.txt");
 
 
+    ofstream phifile_comp;
+
+    phifile_comp.open("phifile_comp");
+
+
     //*******
 
     Eigen::MatrixXd phi_Mat(numInputPoses*(numBodies-1), numPertRobots);
@@ -815,6 +858,9 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
 
 
     Eigen::MatrixXd phi(numBodies-1,1);
+
+
+    Eigen::MatrixXd phiMatrix_comp(numBodies-1, numPertRobots+21);
 
     Eigen::MatrixXd phiM0(numBodies-1,1); Eigen::MatrixXd phiM0Matrix(numBodies-1, numPertRobots);
     Eigen::MatrixXd phiM1(numBodies-1,1); Eigen::MatrixXd phiM1Matrix(numBodies-1, numPertRobots);
@@ -1021,6 +1067,125 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
             phiCMatrix.block<7,3>(0,c+1) = phiCMatrix.block<7,3>(0,c+1)/m; phiCMatrix.col(c)  =  phiCMatrix.col(c)  - phiCMatrix.col(c+1)*COM(0)  - phiCMatrix.col(c+2)*COM(1)  - phiCMatrix.col(c+3)*COM(2) ;
             phiGMatrix.block<7,3>(0,c+1) = phiGMatrix.block<7,3>(0,c+1)/m; phiGMatrix.col(c)  =  phiGMatrix.col(c)  - phiGMatrix.col(c+1)*COM(0)  - phiGMatrix.col(c+2)*COM(1)  - phiGMatrix.col(c+3)*COM(2) ;*/
         }
+
+
+        Eigen::MatrixXd gear_mat = Eigen::MatrixXd::Identity(7, 7);
+
+		Eigen::MatrixXd viscous_mat = Eigen::MatrixXd::Identity(7, 7);
+
+		Eigen::MatrixXd columb_mat = Eigen::MatrixXd::Identity(7, 7); 
+
+
+
+		for (int j=0;j<7;j++)
+
+		{
+
+
+		gear_mat(j,j)    =  G_R(j)*G_R(j)*ddq(j);
+
+		viscous_mat(j,j) =  allInitqdot.row(i)(j);
+
+		columb_mat(j,j)  = sin(allInitqdot.row(i)(j));
+
+		}       
+
+
+
+/*		cout<<endl<<gear_mat<<endl<<endl;
+
+
+		cout<<endl<<viscous_mat<<endl<<endl;
+
+		cout<<endl<<columb_mat<<endl<<endl;
+*/
+
+
+        /*phiMatrix_comp.col(10)          =  G_R.square()*ddq(0);                     phiMatrix_comp.segment(1,6)     =  0 ;
+
+        phiMatrix_comp.col(11)			=  allInitqdot.row(i).transpose();	        phiMatrix_comp.segment(1,6)     =  0 ;
+
+        phiMatrix_comp.col(12)			=  allInitqdot.row(i).transpose().sin();	phiMatrix_comp.segment(1,6)     =  0 ;*/
+
+
+
+
+        phiMatrix_comp.block<7,10>(0,0) =  phiMatrix.block<7,10>(0,0);
+
+        phiMatrix_comp.col(10)          =  gear_mat.col(0);
+
+        phiMatrix_comp.col(11)          =  viscous_mat.col(0);
+
+        phiMatrix_comp.col(12)          =  columb_mat.col(0);
+
+
+
+
+        phiMatrix_comp.block<7,10>(0,13) =  phiMatrix.block<7,10>(0,10);
+
+        phiMatrix_comp.col(23)          =  gear_mat.col(1);
+
+        phiMatrix_comp.col(24)          =  viscous_mat.col(1);
+
+        phiMatrix_comp.col(25)          =  columb_mat.col(1);
+
+
+        phiMatrix_comp.block<7,10>(0,26) =  phiMatrix.block<7,10>(0,20);
+
+        phiMatrix_comp.col(36)          =  gear_mat.col(2);
+
+        phiMatrix_comp.col(37)          =  viscous_mat.col(2);
+
+        phiMatrix_comp.col(38)          =  columb_mat.col(2);
+
+
+        phiMatrix_comp.block<7,10>(0,39) =  phiMatrix.block<7,10>(0,30);
+
+        phiMatrix_comp.col(49)          =  gear_mat.col(3);
+
+        phiMatrix_comp.col(50)          =  viscous_mat.col(3);
+
+        phiMatrix_comp.col(51)          =  columb_mat.col(3);
+
+        phiMatrix_comp.block<7,10>(0,52) =  phiMatrix.block<7,10>(0,40);
+
+        phiMatrix_comp.col(62)          =  gear_mat.col(4);
+
+        phiMatrix_comp.col(63)          =  viscous_mat.col(4);
+
+        phiMatrix_comp.col(64)          =  columb_mat.col(4);
+
+
+        phiMatrix_comp.block<7,10>(0,65) =  phiMatrix.block<7,10>(0,50);
+
+        phiMatrix_comp.col(75)          =  gear_mat.col(5);
+
+        phiMatrix_comp.col(76)          =  viscous_mat.col(5);
+
+        phiMatrix_comp.col(77)          =  columb_mat.col(5);
+
+
+        phiMatrix_comp.block<7,10>(0,78) =  phiMatrix.block<7,10>(0,60);
+
+        phiMatrix_comp.col(88)          =  gear_mat.col(6);
+
+        phiMatrix_comp.col(89)          =  viscous_mat.col(6);
+
+        phiMatrix_comp.col(90)          =  columb_mat.col(6);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 
         Eigen::MatrixXd rhs_phibeta_diff(numBodies-1,3);
@@ -1063,6 +1228,9 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
         phifile<< phiMatrix<<endl;
 
 
+        phifile_comp<< phiMatrix_comp<<endl;
+
+
         myfile2 <<"PHI_MAT AT:" << i <<endl<<endl;
 
 
@@ -1081,6 +1249,12 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
 
 
     }
+
+cout<<endl<<phiMatrix_comp.rows()<<endl<<endl;
+
+cout<<endl<<phiMatrix_comp.cols()<<endl<<endl;
+
+
 
 
 myfile.close();
@@ -1129,6 +1303,7 @@ Eigen::MatrixXd readInputFileAsMatrix(string inputFilename, int stopCount) {
 
     infile.close();
     rows--;
+
 
     // Populate matrix with numbers.
     Eigen::MatrixXd outputMatrix(rows, cols);
