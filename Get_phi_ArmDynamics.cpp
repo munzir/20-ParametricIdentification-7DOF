@@ -47,13 +47,17 @@ int main() {
     double perturbedValue = std::pow(10, -8);
 
     // INPUT on below line (absolute robot path)
-    string fullRobotPath = "/home/Zubair/Documents/WholeBodyControlAttempt1/09-URDF/7DOFArm/singlearm.urdf";
+    string fullRobotPath = "/home/munzir/dart_test/09-URDF/7DOFArm/singlearm.urdf";
 
     // INPUT on below line (input data points filenames)
-    string inputQFilename = "/home/Zubair/Downloads/test4/dataQ1.txt";
-    string inputQdotFilename = "/home/Zubair/Downloads/test4/dataDotQ1.txt";
-    string inputQdotdotFilename = "/home/Zubair/Downloads/test4/dataDDotQ1.txt";
-    string inputTorqueFilename = "/home/Zubair/Downloads/test4/dataCur1.txt";
+    // string inputQFilename = "/home/Zubair/Downloads/test4/dataQ1.txt";
+    // string inputQdotFilename = "/home/Zubair/Downloads/test4/dataDotQ1.txt";
+    // string inputQdotdotFilename = "/home/Zubair/Downloads/test4/dataDDotQ1.txt";
+    // string inputTorqueFilename = "/home/Zubair/Downloads/test4/dataCur1.txt";
+    string inputQFilename = "../data/q_filt.txt";
+    string inputQdotFilename = "../data/dq_filt.txt";
+    string inputQdotdotFilename = "../data/ddq_filt.txt";
+    string inputTorqueFilename = "../data/cur_filt.txt";
     //string inputMassMatrixFilename = "/home/Downloads/train4/dataM.txt";
     //string inputCgFilename = "/home/Downloads/train4/dataCg.txt";
 
@@ -478,7 +482,7 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
     cout << "Creating ideal beta vector ...\n";
     dart::utils::DartLoader loader;
     // INPUT on below line (absolute path of the Krang URDF file)
-    dart::dynamics::SkeletonPtr idealRobot = loader.parseSkeleton("/home/Zubair/Documents/WholeBodyControlAttempt1/09-URDF/7DOFArm/singlearm.urdf");
+    dart::dynamics::SkeletonPtr idealRobot = loader.parseSkeleton("/home/munzir/dart_test/09-URDF/7DOFArm/singlearm.urdf");
     idealRobot->setGravity(Eigen::Vector3d (0.0, -9.81, 0.0));
 
     // Create ideal beta
@@ -568,7 +572,7 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
 
     dart::dynamics::SkeletonPtr pertRobotArray[numPertRobots];
     for(int i=0; i<numPertRobots; i++) {
-        pertRobotArray[i] = loader.parseSkeleton("/home/Zubair/Documents/WholeBodyControlAttempt1/09-URDF/7DOFArm/singlearm.urdf");
+        pertRobotArray[i] = loader.parseSkeleton("/home/munzir/dart_test/09-URDF/7DOFArm/singlearm.urdf");
         pertRobotArray[i]->setGravity(Eigen::Vector3d (0.0, -9.81, 0.0));
     }
 
