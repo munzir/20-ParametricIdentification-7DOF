@@ -151,7 +151,7 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
 	// ******************************* Read the beta vector
     cout << "Creating ideal beta vector ...\n";
     dart::utils::DartLoader loader;
-    dart::dynamics::SkeletonPtr idealRobot = loader.parseSkeleton("/home/munzir/dart_test/09-URDF/7DOFArm/singlearm.urdf");
+    dart::dynamics::SkeletonPtr idealRobot = loader.parseSkeleton("/home/panda/myfolder/wholebodycontrol/09-URDF/7DOFArm/singlearm.urdf");
     idealRobot->setGravity(Eigen::Vector3d (0.0, -9.81, 0.0));
     int bodyParams = 10;
     int numBodies = idealRobot->getNumBodyNodes();
@@ -317,7 +317,8 @@ Eigen::MatrixXd genPhiMatrix(Eigen::MatrixXd allInitq, Eigen::MatrixXd allInitqd
 		{
 			gear_mat(j,j)    =  G_R(j)*G_R(j)*ddq(j);
 			viscous_mat(j,j) =  allInitqdot.row(i)(j);
-			coulomb_mat(j,j)  = ((allInitqdot.row(i)(j)) > 0)? 1: -1;
+			// coulomb_mat(j,j)  = ((allInitqdot.row(i)(j)) > 0)? 1: -1;
+            coulomb_mat(j,j)  = 2/(1 + exp(-2*(allInitqdot.row(i)(j)))) - 1;
 		}       
 
 		for(int j=0; j<7; j++){
